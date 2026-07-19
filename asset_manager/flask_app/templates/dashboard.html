@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard - Asset Manager{% endblock %}
+{% block header_title %}System Dashboard{% endblock %}
+{% block header_subtitle %}Real-time summary of hardware assets and activity tracker.{% endblock %}
+
+{% block content %}
+{% if error_msg %}
+<div class="alert alert-danger" style="margin-bottom: 2rem;">
+    <span>{{ error_msg }}</span>
+</div>
+{% endif %}
+
+<!-- Stats Cards -->
+<section class="stats-grid">
+    <div class="stat-card">
+        <span class="stat-label">Total Assets</span>
+        <span class="stat-value">{{ stats.get('total_assets', 0) }}</span>
+        <span class="stat-trend">All hardware cataloged</span>
+    </div>
+    <div class="stat-card" style="border-bottom: 3px solid var(--status-available);">
+        <span class="stat-label">Available Assets</span>
+        <span class="stat-value" style="color: var(--status-available);">{{ stats.get('available_assets', 0) }}</span>
+        <span class="stat-trend">Ready for assignment</span>
+    </div>
+    <div class="stat-card" style="border-bottom: 3px solid var(--status-checkout);">
+        <span class="stat-label">Active Checkouts</span>
+        <span class="stat-value" style="color: var(--status-checkout);">{{ stats.get('checked_out_assets', 0) }}</span>
+        <span class="stat-trend">{{ stats.get('active_checkouts_count', 0) }} active agreements</span>
+    </div>
+    <div class="stat-card" style="border-bottom: 3px solid var(--status-maintenance);">
+        <span class="stat-label">In Maintenance</span>
+        <span class="stat-value" style="color: var(--status-maintenance);">{{ stats.get('maintenance_assets', 0) }}</span>
+        <span class="stat-trend">In diagnostic loop</span>
+    </div>
+    <div class="stat-card">
+        <span class="stat-label">Total Portfolio Value</span>
+        <span class="stat-value">${{ "{:,.2f}".format(stats.get('total_value', 0) | float) }}</span>
+        <span class="stat-trend">Acquisition cost total</span>
+    </div>
+</section>
+
+<!-- Dashboard Main Grid -->
+<div class="dashboard-content">
+    
+    <!-- Left Column: Recent Assets -->
+    <div class="left-col">
+        <div class="section-panel">
+            <div class="panel-header">
+                <h2 class="panel-title">Recently Added Assets</h2>
+                <a href="{{ url_for('list_assets') }}" class="btn btn-outline btn-sm">View Directory</a>
+            </div>
+            
+            <div class="data-table-container">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Asset Name</th>
+                            <th>Serial Number</th>
+                            <th>Category</th>
+                            <th>Status</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for asset in recent_assets %}
+                        <tr>
+                            <td>
+                                <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" style="color: #ffffff; font-weight: 600; text-decoration: none;">
+                                    {{ asset.name }}
+                                </a>
+                            </td>
+                            <td style="font-family: monospace; color: var(--text-secondary);">{{ asset.serial_number }}</td>
+                            <td>{{ asset.category.name }}</td>
+                            <td>
+                                <span class="status-badge {{ asset.status.lower() }}">
+                                    {{ asset.status.replace('_', ' ') }}
+                                </span>
+                            </td>
+                            <td style="font-weight: 500;">${{ "{:,.2f}".format(asset.price | float) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5" class="empty-state">
+                                <div class="empty-icon">📦</div>
+                                <p>No assets found. Start by adding one!</p>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Right Column: Shortcuts and Actions -->
+    <div class="right-col">
+        <div class="section-panel" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.05), rgba(139, 92, 246, 0.05)); border-color: rgba(59, 130, 246, 0.15);">
+            <h2 class="panel-title" style="margin-bottom: 1.25rem;">Quick Operations</h2>
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="{{ url_for('add_asset') }}" class="btn btn-primary" style="justify-content: flex-start;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"></line>
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                    </svg>
+                    Register New Asset
+                </a>
+                
+                <a href="{{ url_for('list_assets') }}" class="btn btn-secondary" style="justify-content: flex-start;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="11" cy="11" r="8"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    Search Assets
+                </a>
+                
+                <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+                    <h3 style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 0.75rem; text-transform: uppercase;">Operator Notes</h3>
+                    <p style="font-size: 0.825rem; color: var(--text-muted); line-height: 1.4;">
+                        FastAPI backend handles high-speed inventory queries. Django Admin panel is synchronized for schema administration and auditing. Both platforms point to the active MySQL configuration.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

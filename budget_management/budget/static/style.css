@@ -1,0 +1,243 @@
+/* ==========================================
+   Monthly Budget Management System
+   style.css
+========================================== */
+
+/* Google Font */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+/* ---------- Global ---------- */
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Poppins',sans-serif;
+    background:#f4f7fc;
+    color:#333;
+}
+
+/* ---------- Navbar ---------- */
+
+.navbar{
+    background:#0d6efd !important;
+    box-shadow:0 3px 10px rgba(0,0,0,.15);
+}
+
+.navbar-brand{
+    font-size:24px;
+    font-weight:600;
+}
+
+.navbar span{
+    font-size:15px;
+}
+
+/* ---------- Sidebar ---------- */
+
+.sidebar{
+    background:#1f2937;
+    min-height:100vh;
+    padding:20px;
+}
+
+.sidebar h4{
+    color:#fff;
+    margin-bottom:20px;
+}
+
+.sidebar hr{
+    border-color:#495057;
+}
+
+.sidebar a{
+    display:block;
+    color:#d1d5db;
+    text-decoration:none;
+    padding:12px 15px;
+    margin-bottom:10px;
+    border-radius:8px;
+    transition:.3s;
+    font-size:15px;
+}
+
+.sidebar a:hover{
+    background:#0d6efd;
+    color:white;
+    transform:translateX(5px);
+}
+
+/* ---------- Dashboard ---------- */
+
+.dashboard-title{
+    margin-bottom:20px;
+    font-weight:600;
+}
+
+/* ---------- Cards ---------- */
+
+.card{
+    border:none;
+    border-radius:15px;
+    box-shadow:0 6px 15px rgba(0,0,0,.08);
+    transition:.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card-body h5{
+    font-size:18px;
+}
+
+.card-body h2{
+    margin-top:10px;
+    font-weight:bold;
+}
+
+/* ---------- Progress ---------- */
+
+.progress{
+    height:25px;
+    border-radius:30px;
+}
+
+.progress-bar{
+    font-weight:600;
+    font-size:14px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn{
+    border-radius:8px;
+    padding:10px 20px;
+    font-weight:500;
+    transition:.3s;
+}
+
+.btn:hover{
+    transform:scale(1.05);
+}
+
+/* ---------- Table ---------- */
+
+.table{
+    margin-top:10px;
+}
+
+.table thead{
+    background:#0d6efd;
+    color:white;
+}
+
+.table th{
+    vertical-align:middle;
+}
+
+.table td{
+    vertical-align:middle;
+}
+
+/* ---------- Income ---------- */
+
+.text-success{
+    font-weight:600;
+}
+
+/* ---------- Expense ---------- */
+
+.text-danger{
+    font-weight:600;
+}
+
+/* ---------- Card Header ---------- */
+
+.card-header{
+    background:#fff;
+    border-bottom:1px solid #e9ecef;
+    font-weight:600;
+}
+
+/* ---------- Footer ---------- */
+
+footer{
+    margin-top:40px;
+    text-align:center;
+    color:#777;
+    padding:15px;
+}
+
+/* ---------- Scrollbar ---------- */
+
+::-webkit-scrollbar{
+    width:8px;
+}
+
+::-webkit-scrollbar-track{
+    background:#eee;
+}
+
+::-webkit-scrollbar-thumb{
+    background:#0d6efd;
+    border-radius:10px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+    background:#084298;
+}
+
+/* ---------- Responsive ---------- */
+
+@media(max-width:992px){
+
+.sidebar{
+    min-height:auto;
+}
+
+.card{
+    margin-bottom:20px;
+}
+
+}
+
+@media(max-width:768px){
+
+.navbar-brand{
+    font-size:18px;
+}
+
+.sidebar{
+    padding:15px;
+}
+
+.sidebar a{
+    font-size:14px;
+}
+
+.table{
+    font-size:13px;
+}
+
+.btn{
+    width:100%;
+    margin-bottom:10px;
+}
+
+}
+
+@media(max-width:576px){
+
+.card-body h2{
+    font-size:24px;
+}
+
+.dashboard-title{
+    font-size:20px;
+}
+
+}

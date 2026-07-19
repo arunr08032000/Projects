@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout Asset - {{ asset.name }}{% endblock %}
+{% block header_title %}Checkout Agreement{% endblock %}
+{% block header_subtitle %}Assign hardware to an employee with estimated terms.{% endblock %}
+
+{% block content %}
+<div class="alert-container">
+    <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn btn-secondary btn-sm" style="margin-bottom: 1.5rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Cancel
+    </a>
+</div>
+
+<div class="section-panel" style="max-width: 600px; margin: 0 auto;">
+    <div style="margin-bottom: 1.5rem; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem;">
+        <h3 style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 0.25rem;">Hardware Item</h3>
+        <p style="font-size: 1.15rem; font-weight: 700; color: #ffffff;">{{ asset.name }}</p>
+        <span style="font-family: monospace; font-size: 0.85rem; color: var(--text-muted);">S/N: {{ asset.serial_number }}</span>
+    </div>
+    
+    <form method="POST" action="{{ url_for('checkout_asset', asset_id=asset.id) }}">
+        <div class="form-group">
+            <label class="form-label" for="employee_name">Employee Name</label>
+            <input type="text" id="employee_name" name="employee_name" class="form-input" placeholder="e.g., Alice Vance" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label" for="employee_email">Employee Email</label>
+            <input type="email" id="employee_email" name="employee_email" class="form-input" placeholder="e.g., alice@company.com" required>
+        </div>
+        
+        <div class="form-group">
+            <label class="form-label" for="expected_return_date">Expected Return Date</label>
+            <input type="date" id="expected_return_date" name="expected_return_date" class="form-input" required>
+        </div>
+        
+        <script>
+            // Auto-fill return date to +30 days from today
+            var targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 30);
+            document.getElementById('expected_return_date').value = targetDate.toISOString().substring(0, 10);
+        </script>
+        
+        <div class="form-group">
+            <label class="form-label" for="notes">Checkout Conditions / Notes</label>
+            <textarea id="notes" name="notes" class="form-textarea" placeholder="Detail any conditions, peripherals included (e.g. charger, sleeve)..."></textarea>
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary" style="background-color: var(--status-available);">Approve Assignment</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

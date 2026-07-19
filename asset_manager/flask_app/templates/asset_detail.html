@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}Asset Profile - {{ asset.name }}{% endblock %}
+{% block header_title %}Asset Profile{% endblock %}
+{% block header_subtitle %}Detailed asset information and logs overview.{% endblock %}
+
+{% block content %}
+<div class="alert-container">
+    <!-- Back Navigation -->
+    <a href="{{ url_for('list_assets') }}" class="btn btn-secondary btn-sm" style="margin-bottom: 1.5rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Back to Directory
+    </a>
+</div>
+
+<div class="detail-grid">
+    
+    <!-- Left Column: Specs and Action Panel -->
+    <div class="left-col">
+        <div class="section-panel">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="width: 60px; height: 60px; background: rgba(255,255,255,0.03); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1rem; border: 1px solid var(--border-color);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--accent-blue)" stroke-width="2">
+                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                    </svg>
+                </div>
+                <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">{{ asset.name }}</h2>
+                <span class="status-badge {{ asset.status.lower() }}">
+                    {{ asset.status.replace('_', ' ') }}
+                </span>
+            </div>
+            
+            <div class="meta-list">
+                <div class="meta-item">
+                    <span class="meta-label">Serial Number</span>
+                    <span class="meta-val" style="font-family: monospace;">{{ asset.serial_number }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Category</span>
+                    <span class="meta-val">{{ asset.category.name }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Purchase Date</span>
+                    <span class="meta-val">{{ asset.purchase_date }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Value</span>
+                    <span class="meta-val" style="color: var(--status-available); font-weight: 600;">
+                        ${{ "{:,.2f}".format(asset.price | float) }}
+                    </span>
+                </div>
+                {% if asset.description %}
+                <div style="padding-top: 0.75rem;">
+                    <span class="meta-label" style="display: block; margin-bottom: 0.25rem;">Description</span>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.4;">{{ asset.description }}</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Action Control Panel -->
+        <div class="section-panel" style="border-top: 3px solid var(--accent-blue);">
+            <h3 class="panel-title" style="margin-bottom: 1.25rem;">Action Console</h3>
+            
+            {% if asset.status == 'AVAILABLE' %}
+            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <a href="{{ url_for('checkout_asset', asset_id=asset.id) }}" class="btn btn-primary" style="background-color: var(--status-available);">
+                    Check Out Asset
+                </a>
+                <a href="{{ url_for('start_maintenance', asset_id=asset.id) }}" class="btn btn-secondary">
+                    Send to Maintenance
+                </a>
+            </div>
+            
+            {% elif asset.status == 'CHECKED_OUT' %}
+            <form method="POST" action="{{ url_for('return_asset', asset_id=asset.id) }}" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="notes">Return Condition Notes</label>
+                    <input type="text" id="notes" name="notes" class="form-input" placeholder="e.g., Return clean, no scratches">
+                </div>
+                <button type="submit" class="btn btn-primary" style="background-color: var(--status-checkout);">
+                    Process Asset Return
+                </button>
+            </form>
+            
+            {% elif asset.status == 'MAINTENANCE' %}
+            <form method="POST" action="{{ url_for('end_maintenance', asset_id=asset.id) }}" style="display: flex; flex-direction: column; gap: 1rem;">
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="cost">Maintenance Cost ($)</label>
+                    <input type="number" step="0.01" id="cost" name="cost" class="form-input" placeholder="0.00" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="background-color: var(--status-maintenance);">
+                    Complete Maintenance
+                </button>
+            </form>
+            
+            {% else %}
+            <p style="font-size: 0.85rem; color: var(--text-muted); text-align: center;">This asset has been retired and cannot undergo actions.</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Right Column: Timelines -->
+    <div class="right-col">
+        <!-- Checkout History -->
+        <div class="section-panel">
+            <h2 class="panel-title" style="margin-bottom: 1.5rem;">Allocation History</h2>
+            
+            <div class="timeline">
+                {% for checkout in asset.checkouts | sort(attribute='checkout_date', reverse=True) %}
+                <div class="timeline-item">
+                    <div class="timeline-dot" style="border-color: {% if checkout.actual_return_date %}var(--status-available){% else %}var(--status-checkout){% endif %};"></div>
+                    <div class="timeline-header">
+                        <span class="timeline-title" style="color: #ffffff;">
+                            {{ checkout.employee_name }} 
+                            <span style="font-weight: normal; color: var(--text-secondary);">({{ checkout.employee_email }})</span>
+                        </span>
+                        <span class="timeline-date">{{ checkout.checkout_date }}</span>
+                    </div>
+                    <div class="timeline-content">
+                        <p>Expected return: {{ checkout.expected_return_date }}</p>
+                        {% if checkout.actual_return_date %}
+                        <p style="color: var(--status-available); font-weight: 500; margin-top: 0.15rem;">Returned: {{ checkout.actual_return_date }}</p>
+                        {% else %}
+                        <p style="color: var(--status-checkout); font-weight: 600; margin-top: 0.15rem;">Currently Checked Out (Active)</p>
+                        {% endif %}
+                        {% if checkout.notes %}
+                        <p style="font-style: italic; margin-top: 0.25rem; color: var(--text-muted);">Note: {{ checkout.notes }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div style="color: var(--text-muted); font-size: 0.85rem; padding: 1rem 0;">No checkout history found for this hardware.</div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Maintenance Logs -->
+        <div class="section-panel">
+            <h2 class="panel-title" style="margin-bottom: 1.5rem;">Maintenance & Service History</h2>
+            
+            <div class="timeline">
+                {% for log in asset.maintenance_logs | sort(attribute='start_date', reverse=True) %}
+                <div class="timeline-item">
+                    <div class="timeline-dot" style="border-color: {% if log.end_date %}var(--status-available){% else %}var(--status-maintenance){% endif %};"></div>
+                    <div class="timeline-header">
+                        <span class="timeline-title" style="color: #ffffff;">{{ log.description }}</span>
+                        <span class="timeline-date">{{ log.start_date }}</span>
+                    </div>
+                    <div class="timeline-content">
+                        <p>Cost: ${{ "{:,.2f}".format(log.cost | float) }}</p>
+                        {% if log.end_date %}
+                        <p style="color: var(--status-available); font-weight: 500; margin-top: 0.15rem;">Resolved on: {{ log.end_date }}</p>
+                        {% else %}
+                        <p style="color: var(--status-maintenance); font-weight: 600; margin-top: 0.15rem;">Currently In Maintenance</p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% else %}
+                <div style="color: var(--text-muted); font-size: 0.85rem; padding: 1rem 0;">No maintenance logs registered.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    
+</div>
+{% endblock %}

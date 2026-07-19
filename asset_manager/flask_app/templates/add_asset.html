@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block title %}Register Asset - Asset Manager{% endblock %}
+{% block header_title %}Register Hardware Asset{% endblock %}
+{% block header_subtitle %}Input acquisition details to register the hardware in the inventory catalog.{% endblock %}
+
+{% block content %}
+<div class="alert-container">
+    <a href="{{ url_for('list_assets') }}" class="btn btn-secondary btn-sm" style="margin-bottom: 1.5rem;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+        Cancel
+    </a>
+</div>
+
+<div class="section-panel" style="max-width: 800px; margin: 0 auto;">
+    <form method="POST" action="{{ url_for('add_asset') }}">
+        <div class="form-grid">
+            
+            <div class="form-group">
+                <label class="form-label" for="name">Asset Name / Model</label>
+                <input type="text" id="name" name="name" class="form-input" placeholder="e.g., MacBook Pro 16-inch M3" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="serial_number">Serial Number / SKU</label>
+                <input type="text" id="serial_number" name="serial_number" class="form-input" placeholder="e.g., C02XL123L456" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="category_id">Asset Category</label>
+                <select id="category_id" name="category_id" class="form-select" required>
+                    <option value="" disabled selected>Select Category</option>
+                    {% for cat in categories %}
+                    <option value="{{ cat.id }}">{{ cat.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="price">Acquisition Price ($)</label>
+                <input type="number" step="0.01" id="price" name="price" class="form-input" placeholder="0.00" required>
+            </div>
+            
+            <div class="form-group">
+                <label class="form-label" for="purchase_date">Purchase Date</label>
+                <input type="date" id="purchase_date" name="purchase_date" class="form-input" required>
+            </div>
+            
+            <script>
+                // Auto-fill purchase date with today's date
+                document.getElementById('purchase_date').value = new Date().toISOString().substring(0, 10);
+            </script>
+            
+            <div class="form-group form-full">
+                <label class="form-label" for="description">Specifications / Remarks</label>
+                <textarea id="description" name="description" class="form-textarea" placeholder="Detail hardware specs (e.g. 32GB RAM, 1TB SSD), ports, or condition remarks..."></textarea>
+            </div>
+            
+        </div>
+        
+        <div style="display: flex; justify-content: flex-end; gap: 1rem; margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+            <a href="{{ url_for('list_assets') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary">Save Asset</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

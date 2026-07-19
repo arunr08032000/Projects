@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+
+{% block title %}Assets Directory - Asset Manager{% endblock %}
+{% block header_title %}Assets Directory{% endblock %}
+{% block header_subtitle %}Complete catalog of tracked hardware and asset statuses.{% endblock %}
+
+{% block content %}
+{% if error_msg %}
+<div class="alert alert-danger" style="margin-bottom: 2rem;">
+    <span>{{ error_msg }}</span>
+</div>
+{% endif %}
+
+<!-- Filters Card -->
+<div class="section-panel">
+    <form method="GET" action="{{ url_for('list_assets') }}" class="filter-card">
+        <div class="filter-group" style="flex: 2;">
+            <label class="form-label" for="search">Search Keywords</label>
+            <input type="text" id="search" name="search" class="form-input" placeholder="Search by name, serial number..." value="{{ search }}">
+        </div>
+        
+        <div class="filter-group">
+            <label class="form-label" for="category_id">Category</label>
+            <select id="category_id" name="category_id" class="form-select">
+                <option value="">All Categories</option>
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if category_id | int == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+        <div class="filter-group">
+            <label class="form-label" for="status">Status</label>
+            <select id="status" name="status" class="form-select">
+                <option value="">All Statuses</option>
+                <option value="AVAILABLE" {% if status == 'AVAILABLE' %}selected{% endif %}>Available</option>
+                <option value="CHECKED_OUT" {% if status == 'CHECKED_OUT' %}selected{% endif %}>Checked Out</option>
+                <option value="MAINTENANCE" {% if status == 'MAINTENANCE' %}selected{% endif %}>Maintenance</option>
+                <option value="RETIRED" {% if status == 'RETIRED' %}selected{% endif %}>Retired</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem;">
+            <button type="submit" class="btn btn-primary">Filter</button>
+            <a href="{{ url_for('list_assets') }}" class="btn btn-secondary">Clear</a>
+        </div>
+    </form>
+</div>
+
+<!-- Assets Table List -->
+<div class="section-panel">
+    <div class="data-table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Asset Details</th>
+                    <th>Serial Number</th>
+                    <th>Category</th>
+                    <th>Purchase Date</th>
+                    <th>Value</th>
+                    <th>Status</th>
+                    <th style="text-align: right;">Operations</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for asset in assets %}
+                <tr>
+                    <td>
+                        <div>
+                            <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" style="color: #ffffff; font-weight: 600; text-decoration: none; font-size: 1rem;">
+                                {{ asset.name }}
+                            </a>
+                            <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.15rem;">ID: #{{ asset.id }}</div>
+                        </div>
+                    </td>
+                    <td style="font-family: monospace; color: var(--text-secondary);">{{ asset.serial_number }}</td>
+                    <td>{{ asset.category.name }}</td>
+                    <td style="color: var(--text-secondary);">{{ asset.purchase_date }}</td>
+                    <td style="font-weight: 500;">${{ "{:,.2f}".format(asset.price | float) }}</td>
+                    <td>
+                        <span class="status-badge {{ asset.status.lower() }}">
+                            {{ asset.status.replace('_', ' ') }}
+                        </span>
+                    </td>
+                    <td style="text-align: right;">
+                        <div style="display: inline-flex; gap: 0.5rem; justify-content: flex-end;">
+                            {% if asset.status == 'AVAILABLE' %}
+                            <a href="{{ url_for('checkout_asset', asset_id=asset.id) }}" class="btn btn-outline btn-sm" style="color: var(--status-available); border-color: rgba(16, 185, 129, 0.25);">
+                                Check Out
+                            </a>
+                            <a href="{{ url_for('start_maintenance', asset_id=asset.id) }}" class="btn btn-secondary btn-sm">
+                                Maintain
+                            </a>
+                            {% elif asset.status == 'CHECKED_OUT' %}
+                            <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn btn-primary btn-sm" style="background-color: var(--status-checkout); color: #ffffff;">
+                                View Return
+                            </a>
+                            {% elif asset.status == 'MAINTENANCE' %}
+                            <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn btn-primary btn-sm" style="background-color: var(--status-maintenance); color: #ffffff;">
+                                Resolve Logs
+                            </a>
+                            {% endif %}
+                            <a href="{{ url_for('asset_detail', asset_id=asset.id) }}" class="btn btn-secondary btn-sm">
+                                Details
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="7" class="empty-state">
+                        <div class="empty-icon">🔍</div>
+                        <p>No matching assets found in directory database.</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

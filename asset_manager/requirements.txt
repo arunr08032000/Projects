@@ -1,0 +1,10 @@
+django>=5.0
+fastapi>=0.110.0
+uvicorn>=0.28.0
+flask>=3.0.0
+requests>=2.31.0
+sqlalchemy>=2.0.0
+pymysql>=1.1.0
+pydantic>=2.6.0
+django-cors-headers>=4.3.0
+email-validator>=2.0.0
